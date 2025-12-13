@@ -19,9 +19,9 @@ export default function CategoriesPage() {
   const loadCategories = async () => {
     setLoading(true);
     const result = await getCategories();
-    if (result.success) {
+    if (result.succeeded) {
       setCategories((result as DataResult<CategoryDto[]>).data || []);
-      toast.success(result.message);
+      toast.success(result.message!);
     } else {
       toast.error(result.message || "Bir hata oluştu");
     }
@@ -40,7 +40,7 @@ export default function CategoriesPage() {
       cancelText: "Vazgeç",
       onConfirm: async () => {
         const result = await deleteCategory(category.id);
-        if (result.success) {
+        if (result.succeeded) {
           toast.success(result.message || "Silme işlemi başarılı");
           setCategories((prev) => prev.filter((c) => c.id !== category.id));
         } else {

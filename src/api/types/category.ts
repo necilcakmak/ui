@@ -1,25 +1,30 @@
-export interface CategoryDto {
-  id: string; // Guid → string
-  name?: string | null;
-  tagName?: string | null;
-  parentCategoryId: string; // Guid → string
-  parentCategoryDto: ParentCategoryDto;
-}
-
 export interface ParentCategoryDto {
-  id: string; // Guid → string
+  id: number;
   name: string;
 }
 
-export interface CategoryAddDto {
+export interface CategoryReferenceDto {
+    id: number;
+    name: string;
+}
+
+export interface CategoryDto {
+  id: number;
+  name: string;
+  tagName: string | null;
+  parentCategoryId: number | null;
+  parentCategoryDto: ParentCategoryDto | null;
+}
+
+export interface CreateCategoryPayload {
   name: string;
   tagName?: string | null;
-  parentCategoryId: string;
+  parentCategoryId?: number | null;
 }
 
-export interface CategoryUpdateDto {
-  id: string;
-  name: string; 
-  tagName?: string;
-  parentCategoryId: string;
+export interface UpdateCategoryPayload {
+  id: number; 
+  name: string;
+  tagName?: string | null;
+  parentCategoryId?: number | null;
 }

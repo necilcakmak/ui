@@ -8,10 +8,10 @@ import toast from "react-hot-toast";
 export function LogoutButton() {
   const handleLogout = async () => {
     const response = await logout();
-    if (response.success) {
-      toast.success(response.message);
+    if (response.succeeded) {
+      toast.success(response.message!);
     } else {
-      toast.error(response.message);
+      toast.error(response.message!);
     }
   };
 

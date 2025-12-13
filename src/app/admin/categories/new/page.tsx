@@ -3,10 +3,9 @@
 import { useEffect, useState } from "react";
 import Input from "@/components/Input";
 import { useRouter } from "next/navigation";
-import { createCategory, getParentCategories } from "@/api/apiMethods";
+import { createCategory, getCategories } from "@/api/apiMethods";
 import toast from "react-hot-toast";
-import { CategoryAddDto, ParentCategoryDto } from "@/api/types/category";
-import { DataResult } from "@/api/types/apiResponse";
+import { CreateCategoryPayload, ParentCategoryDto } from "@/api/types/category";
 
 export default function NewCategoryPage() {
   const router = useRouter();
@@ -16,18 +15,21 @@ export default function NewCategoryPage() {
   );
 
   // Form state
-  const [form, setForm] = useState<CategoryAddDto>({
+  const [form, setForm] = useState<CreateCategoryPayload>({
     name: "",
     tagName: "",
-    parentCategoryId: "",
+    parentCategoryId: null,
   });
 
   // Validation errors
   const [errors, setErrors] = useState<
-    Partial<Record<keyof CategoryAddDto, string>>
+    Partial<Record<keyof CreateCategoryPayload, string>>
   >({});
 
-  const handleChange = (key: keyof CategoryAddDto, value: string | null) => {
+  const handleChange = (
+    key: keyof CreateCategoryPayload,
+    value: string | null
+  ) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     setErrors((prev) => ({ ...prev, [key]: "" }));
   };
@@ -35,10 +37,9 @@ export default function NewCategoryPage() {
   // Parent kategorileri çek
   useEffect(() => {
     const fetchCategories = async () => {
-      const res = await getParentCategories();
-      if (res.success) {
-        const categories = (res as DataResult<ParentCategoryDto[]>).data;
-        setParentCategories(categories || []);
+      const res = await getCategories();
+      if (res.succeeded) {
+        setParentCategories(res.data || []);
       }
     };
     fetchCategories();
@@ -48,15 +49,15 @@ export default function NewCategoryPage() {
     e.preventDefault();
     setErrors({});
 
-    const payload: CategoryAddDto = {
+    const payload: CreateCategoryPayload = {
       ...form,
-      parentCategoryId: form.parentCategoryId || "",
-      tagName: form.tagName || null,
+      parentCategoryId: form.parentCategoryId,
+      tagName: form.tagName,
     };
 
     const result = await createCategory(payload);
     debugger;
-    if (result.success) {
+    if (result.succeeded) {
       toast.success("Kategori başarıyla eklendi!");
       router.push("/admin/categories");
       return;
@@ -64,9 +65,10 @@ export default function NewCategoryPage() {
 
     // API validation errors
     if (result.validationErrors) {
-      const newErrors: Partial<Record<keyof CategoryAddDto, string>> = {};
+      const newErrors: Partial<Record<keyof CreateCategoryPayload, string>> =
+        {};
       Object.entries(result.validationErrors).forEach(([key, messages]) => {
-        newErrors[key as keyof CategoryAddDto] = messages.join(", ");
+        newErrors[key as keyof CreateCategoryPayload] = messages.join(", ");
       });
       setErrors(newErrors);
     }
@@ -98,7 +100,7 @@ export default function NewCategoryPage() {
         <div className="flex flex-col">
           <label className="mb-1 font-medium text-gray-700">Üst Kategori</label>
           <select
-            value={form.parentCategoryId}
+            value={form.parentCategoryId!}
             onChange={(e) => handleChange("parentCategoryId", e.target.value)}
             className={`px-4 py-2 border rounded focus:ring-2 focus:ring-blue-400 ${
               errors.parentCategoryId ? "border-red-500" : "border-gray-300"

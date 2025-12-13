@@ -1,9 +1,13 @@
-export interface Result {
-  success: boolean;
-  message: string;
-  validationErrors?: Record<string, string[]>;
+export type ValidationErrors = {
+  [key: string]: string[]; 
+};
+
+export interface ApiResponse<TData = any> {
+  succeeded: boolean; 
+  data: TData; 
+  message?: string;
+  validationErrors?: ValidationErrors;
 }
 
-export interface DataResult<T> extends Result {
-  data: T;
-}
+export type DataResult<T> = ApiResponse<T>;
+export type Result = ApiResponse<null>; 

@@ -1,31 +1,28 @@
 "use client"; // Client component, çünkü useState ve useEffect kullanıyoruz
 
-import { getArticles, getCategories, getUsers } from "@/api/apiMethods";
+import { getCategories, getPosts } from "@/api/apiMethods";
 import { DataResult } from "@/api/types/apiResponse";
-import { ArticleDto } from "@/api/types/article";
 import { CategoryDto } from "@/api/types/category";
+import { PostDto } from "@/api/types/post";
 import { UserDto } from "@/api/types/user";
 import { useEffect, useState } from "react";
 
 export default function AdminHome() {
-  const [articleList, setArticleList] = useState<ArticleDto[]>([]);
+  const [articleList, setArticleList] = useState<PostDto[]>([]);
   const [categories, setCategories] = useState<CategoryDto[]>([]);
-  const [users, setUsers] = useState<UserDto[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const stats = [
-    { label: "Kullanıcılar", value: users.length },
     { label: "Makaleler", value: articleList.length },
     { label: "Kategoriler", value: categories.length },
   ];
   const fetchArticles = async () => {
     setLoading(true);
-    const result = await getArticles(); // API çağrısı
-    if (result.success) {
-      const articles = (result as DataResult<ArticleDto[]>).data;
-      setArticleList(articles || []);
+    const result = await getPosts();
+    if (result.succeeded) {
+      setArticleList(result.data);
     } else {
       setError(result.message || "Bir hata oluştu");
     }
@@ -34,34 +31,21 @@ export default function AdminHome() {
   const fetchCategories = async () => {
     setLoading(true);
     const result = await getCategories(); // API çağrısı
-    if (result.success) {
-      const categories = (result as DataResult<CategoryDto[]>).data;
-      setCategories(categories || []);
+    if (result.succeeded) {
+      setCategories(result.data || []);
     } else {
       setError(result.message || "Bir hata oluştu");
     }
     setLoading(false);
   };
-  const fetchUsers = async () => {
-    setLoading(true);
-    const result = await getUsers(); // API çağrısı
-    if (result.success) {
-      const users = (result as DataResult<UserDto[]>).data;
-      setUsers(users || []);
-    } else {
-      setError(result.message || "Bir hata oluştu");
-    }
-    setLoading(false);
-  };
+
   useEffect(() => {
     fetchArticles();
     fetchCategories();
-    fetchUsers();
   }, []);
 
   return (
     <div>
-      {/* Dashboard istatistikleri */}
       <div className="grid grid-cols-3 gap-6 mb-10">
         {stats.map((stat) => (
           <div

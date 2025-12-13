@@ -1,98 +1,83 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Input from "@/components/Input";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
-import { getArticle, updateArticle, getCategories } from "@/api/apiMethods";
-
-import { ArticleDto, ArticleUpdateDto } from "@/api/types/article";
 import { CategoryDto } from "@/api/types/category";
-import { DataResult } from "@/api/types/apiResponse";
+import { PostDto, UpdatePostPayload } from "@/api/types/post";
+import { getCategories, getPostById, updatePost } from "@/api/apiMethods";
+import { useParamId } from "@/hooks/useParamId";
 
-export default function EditArticlePage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = use(params);
+export default function EditArticlePage() {
   const router = useRouter();
-  const articleId = slug;
-
+  const postId = useParamId("id");
   const [categories, setCategories] = useState<CategoryDto[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [form, setForm] = useState<ArticleUpdateDto>({
-    id: articleId,
-    title: "",
-    content: "",
-    thumbnail: "",
-    categoryId: "",
-    slug: "",
-    keywords: "",
-  });
-
-  const [errors, setErrors] = useState<
-    Partial<Record<keyof ArticleUpdateDto, string>>
-  >({});
-
-  const handleChange = (key: keyof ArticleUpdateDto, value: string) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
-    setErrors((prev) => ({ ...prev, [key]: "" }));
-  };
-
-  // **ArticleDto → ArticleUpdateDto dönüşümü**
-  const mapToUpdateDto = (a: ArticleDto): ArticleUpdateDto => ({
-    id: a.id,
-    title: a.title || "",
-    content: a.content || "",
-    thumbnail: a.thumbnail || "",
-    categoryId: a.categoryId,
-    slug: a.slug || "",
-    keywords: a.keywords || "",
-  });
-
-  // İlk yüklemede makale ve kategorileri getir
   useEffect(() => {
+    if (postId === null) return;
+
     const loadData = async () => {
       const [articleRes, catRes] = await Promise.all([
-        await getArticle(articleId),
+        await getPostById(postId),
         await getCategories(),
       ]);
 
-      if (articleRes.success) {
-        const article = (articleRes as DataResult<ArticleDto>).data;
-
-        setForm(mapToUpdateDto(article));
+      if (articleRes.succeeded) {
+        setForm(mapToUpdateDto(articleRes.data));
       }
 
-      if (catRes.success) {
-        setCategories((catRes as DataResult<CategoryDto[]>).data || []);
+      if (catRes.succeeded) {
+        setCategories(catRes.data || []);
       }
       setLoading(false);
     };
 
     loadData();
-  }, [articleId]);
+  }, [postId]);
+
+  const [form, setForm] = useState<UpdatePostPayload>({
+    id: postId!,
+    title: "",
+    content: "",
+    categoryId: 0,
+  });
+
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof UpdatePostPayload, string>>
+  >({});
+
+  const handleChange = (key: keyof UpdatePostPayload, value: string) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => ({ ...prev, [key]: "" }));
+  };
+
+  // **PostDto → UpdatePostPayload dönüşümü**
+  const mapToUpdateDto = (a: PostDto): UpdatePostPayload => ({
+    id: a.id,
+    title: a.title || "",
+    content: a.content || "",
+    categoryId: a.categoryId,
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
+    const result = await updatePost(form);
 
-    const result = await updateArticle(form);
-
-    if (result.success) {
+    if (result.succeeded) {
       toast.success("Makale başarıyla güncellendi!");
       router.push("/admin/articles");
       return;
     }
 
     if (result.validationErrors) {
-      const newErrors: Partial<Record<keyof ArticleUpdateDto, string>> = {};
+      const newErrors: Partial<Record<keyof UpdatePostPayload, string>> = {};
 
       Object.entries(result.validationErrors).forEach(([key, messages]) => {
-        newErrors[key as keyof ArticleUpdateDto] = messages.join(", ");
+        newErrors[key as keyof UpdatePostPayload] = messages.join(", ");
       });
 
       setErrors(newErrors);
@@ -113,28 +98,6 @@ export default function EditArticlePage({
           value={form.title || ""}
           onChange={(v) => handleChange("title", v)}
           errorMessage={errors.title}
-        />
-
-        <Input
-          label="Slug"
-          value={form.slug}
-          onChange={(v) => handleChange("slug", v)}
-          required
-          errorMessage={errors.slug}
-        />
-
-        <Input
-          label="Keywords"
-          value={form.keywords}
-          onChange={(v) => handleChange("keywords", v)}
-          errorMessage={errors.keywords}
-        />
-
-        <Input
-          label="Thumbnail URL"
-          value={form.thumbnail || ""}
-          onChange={(v) => handleChange("thumbnail", v)}
-          errorMessage={errors.thumbnail}
         />
 
         {/* Kategori seçimi */}

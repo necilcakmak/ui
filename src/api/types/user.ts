@@ -1,38 +1,25 @@
+import { PostDto } from "./post";
+
 export interface UserSettingDto {
   newBlog: boolean;
   receiveMail: boolean;
 }
 
 export interface UserDto {
-  id: string; // Guid -> string
-  firstName?: string;
-  lastName?: string;
+  id: number; 
   userName?: string;
   email?: string;
-  gender: boolean;
-  age: number;
   roleName: string;
-  isApproved: boolean;
-  createdDate: string; // DateTime -> string
-  updatedDate: string; // DateTime -> string
-  isActive: boolean;
-  userSetting: UserSettingDto;
-  imageSrc?: string;
-  imageName?: string;
+  createdDate: string;
+  updatedDate: string; 
+  posts?: PostDto;
 }
 
-export interface AccessToken {
-  token?: string;
-  expiration?: string; // DateTime -> string
-  user?: UserDto;
-}
-export interface UserUpdateDto {
-  firstName: string;
-  lastName: string;
-  gender: boolean;
-  newBlog: boolean;
-  passwordIsChange: boolean;
-  oldPassword?: string | null;
-  password?: string | null;
-  passwordRepeat?: string | null;
+export interface AuthResponseDto {
+  userId: number;
+  username: string;
+  email: string;
+  role: string;
+  token: string; 
+  tokenExpiration: string; 
 }

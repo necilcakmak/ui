@@ -3,11 +3,12 @@
 import React, { useState } from "react";
 import Input from "@/components/Input";
 import Button from "@/components/Button";
-import { DataResult, Result } from "@/api/types/apiResponse";
+import { ApiResponse, } from "@/api/types/apiResponse";
 import { register } from "@/api/apiMethods";
 import { RegisterDto } from "@/api/types/auth";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation"; // ✅
+import { AuthResponseDto } from "@/api/types/user";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -15,11 +16,7 @@ export default function RegisterPage() {
   const [form, setForm] = useState<RegisterDto>({
     email: "",
     userName: "",
-    firstName: "",
-    lastName: "",
     password: "",
-    birthDate: new Date(),
-    gender: true,
   });
 
   const [loading, setLoading] = useState(false);
@@ -36,9 +33,9 @@ export default function RegisterPage() {
     e.preventDefault();
     setLoading(true);
 
-    const registerResponse: DataResult<any> | Result = await register(form);
+    const registerResponse: ApiResponse<AuthResponseDto> = await register(form);
 
-    if (registerResponse.success) {
+    if (registerResponse.succeeded) {
       toast.success(registerResponse.message || "Kayıt başarılı!");
     } else {
       if (registerResponse.validationErrors) {
@@ -83,22 +80,6 @@ export default function RegisterPage() {
         />
 
         <Input
-          label="First Name"
-          value={form.firstName}
-          onChange={(v) => handleChange("firstName", v)}
-          required
-          errorMessage={errors.firstName}
-        />
-
-        <Input
-          label="Last Name"
-          value={form.lastName}
-          onChange={(v) => handleChange("lastName", v)}
-          required
-          errorMessage={errors.lastName}
-        />
-
-        <Input
           label="Password"
           value={form.password}
           onChange={(v) => handleChange("password", v)}
@@ -106,36 +87,6 @@ export default function RegisterPage() {
           required
           errorMessage={errors.password}
         />
-
-        <Input
-          label="Birth Date"
-          value={form.birthDate.toISOString().split("T")[0]}
-          onChange={(v) => handleChange("birthDate", new Date(v))}
-          type="date"
-          required
-          errorMessage={errors.birthDate}
-        />
-
-        <div className="flex items-center space-x-4">
-          <label className="flex items-center space-x-1">
-            <input
-              type="radio"
-              name="gender"
-              checked={form.gender === true}
-              onChange={() => handleChange("gender", true)}
-            />
-            <span>Male</span>
-          </label>
-          <label className="flex items-center space-x-1">
-            <input
-              type="radio"
-              name="gender"
-              checked={form.gender === false}
-              onChange={() => handleChange("gender", false)}
-            />
-            <span>Female</span>
-          </label>
-        </div>
 
         <Button type="submit" disabled={loading}>
           {loading ? "Loading..." : "Register"}

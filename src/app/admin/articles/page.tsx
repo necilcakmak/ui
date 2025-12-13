@@ -1,29 +1,27 @@
 "use client";
 
-import { deleteArticle, getArticles } from "@/api/apiMethods";
-import { DataResult } from "@/api/types/apiResponse";
-import { ArticleDto } from "@/api/types/article";
 import DataTable from "@/components/DataTable";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useModal } from "@/context/ModalContext"; // global modal hook
 import Link from "next/link";
+import { deletePost, getPosts } from "@/api/apiMethods";
+import { PostDto } from "@/api/types/post";
 
 export default function ArticlesPage() {
   const router = useRouter();
-  const [articleList, setArticleList] = useState<ArticleDto[]>([]);
+  const [articleList, setArticleList] = useState<PostDto[]>([]);
   const [loading, setLoading] = useState(true);
 
   const { openModal } = useModal(); // ✅ global modal açma fonksiyonu
 
   const fetchArticles = async () => {
     setLoading(true);
-    const result = await getArticles();
-    if (result.success) {
-      const articles = (result as DataResult<ArticleDto[]>).data;
-      setArticleList(articles || []);
-      toast.success(result.message);
+    const result = await getPosts();
+    if (result.succeeded) {
+      setArticleList(result.data || []);
+      toast.success(result.message!);
     } else {
       toast.error(result.message || "Bir hata oluştu");
     }
@@ -34,15 +32,15 @@ export default function ArticlesPage() {
     fetchArticles();
   }, []);
 
-  const handleDelete = (article: ArticleDto) => {
+  const handleDelete = (article: PostDto) => {
     openModal({
       title: "Makale Sil",
       message: `"${article.title}" adlı makaleyi silmek istiyor musunuz?`,
       confirmText: "Sil",
       cancelText: "Vazgeç",
       onConfirm: async () => {
-        const result = await deleteArticle(article.id);
-        if (result.success) {
+        const result = await deletePost(article.id);
+        if (result.succeeded) {
           toast.success(result.message || "Silme işlemi başarılı");
           setArticleList((prev) => prev.filter((c) => c.id !== article.id));
         } else {
@@ -65,21 +63,18 @@ export default function ArticlesPage() {
             Yeni Ekle
           </Link>
         }
-        searchKeys={["title", "keywords", "slug"]}
+        searchKeys={["title", "content"]}
         columns={[
           { key: "id", label: "ID", sortable: true },
           { key: "title", label: "Başlık", sortable: true },
-          { key: "slug", label: "Slug" },
-          { key: "keywords", label: "Keywords" },
-          { key: "viewsCount", label: "Görüntülenme" },
           { key: "actions", label: "İşlemler" },
         ]}
         pageSize={5}
         loading={loading}
-        onEdit={(article: ArticleDto) =>
+        onEdit={(article: PostDto) =>
           router.push(`/admin/articles/${article.id}/edit`)
         }
-        onView={(article: ArticleDto) =>
+        onView={(article: PostDto) =>
           router.push(`/admin/articles/${article.id}`)
         }
         onDelete={handleDelete}

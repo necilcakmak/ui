@@ -1,31 +1,28 @@
 "use client";
 
-import { getArticles } from "@/api/apiMethods";
-import { DataResult } from "@/api/types/apiResponse";
-import { ArticleDto } from "@/api/types/article";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
+import { PostDto } from "@/api/types/post";
+import { getPosts } from "@/api/apiMethods";
 
 export default function Dashboard() {
-  const [articleList, setArticleList] = useState<ArticleDto[]>([]);
+  const [articleList, setArticleList] = useState<PostDto[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const BASE_IMAGE_URL = process.env.NEXT_PUBLIC_IMAGE_URL + "articles/";
 
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const articlesPerPage = 4;
 
   const fetchArticles = async () => {
     setLoading(true);
 
-    const result = await getArticles();
+    const result = await getPosts();
 
-    if (result.success) {
-      const articles = (result as DataResult<ArticleDto[]>).data;
-      setArticleList(articles || []);
-      toast.success(result.message);
+    if (result.succeeded) {
+      setArticleList(result.data || []);
+      toast.success(result.message || "hata");
     } else {
       toast.error(result.message || "Bir hata oluştu");
     }
@@ -92,19 +89,6 @@ export default function Dashboard() {
             key={article.id}
             className="border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
           >
-            {/* Thumbnail */}
-            {article.thumbnail && (
-              <Link href={`/site/article/${article.id}`} className="block">
-                <div className="relative w-full pt-[50%] overflow-hidden">
-                  <img
-                    src={BASE_IMAGE_URL + article.thumbnail}
-                    alt={article.title || "Makale görseli"}
-                    className="absolute top-0 left-0 w-full h-full object-cover"
-                  />
-                </div>
-              </Link>
-            )}
-
             {/* İçerik */}
             <div className="p-6">
               <h3 className="text-2xl font-bold mb-2">
@@ -116,7 +100,7 @@ export default function Dashboard() {
                 </Link>
               </h3>
               <div className="text-gray-500 mb-4 text-sm">
-                <time>{formatDate(article.publishedDate)}</time>
+                <time>{formatDate(article.createdDate)}</time>
               </div>
               <p className="text-lg leading-relaxed mb-4">
                 {article.content?.slice(0, 200)}
@@ -125,15 +109,8 @@ export default function Dashboard() {
 
               {/* Yazar */}
               <div className="flex items-center mt-4">
-                {article.user.imageSrc && (
-                  <img
-                    src={article.user.imageSrc}
-                    alt={`${article.user.firstName} ${article.user.lastName}`}
-                    className="w-12 h-12 rounded-full mr-4 object-cover"
-                  />
-                )}
                 <div className="text-lg font-bold">
-                  {article.user.firstName} {article.user.lastName}
+                  {article.author.userName}
                 </div>
               </div>
             </div>

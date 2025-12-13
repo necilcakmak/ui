@@ -12,7 +12,9 @@ export function proxy(request: NextRequest) {
     const payload = token.split(".")[1];
     const decoded = JSON.parse(Buffer.from(payload, "base64").toString());
 
-    if (decoded.Role !== "Admin") {
+    const userRole =
+      decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+    if (userRole !== "Admin") {
       return NextResponse.redirect(new URL("/404", request.url));
     }
   } catch (err) {

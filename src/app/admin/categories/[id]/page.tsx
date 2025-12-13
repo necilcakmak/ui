@@ -4,76 +4,58 @@ import { use, useEffect, useState } from "react";
 import Input from "@/components/Input";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-
+import { CategoryDto, UpdateCategoryPayload } from "@/api/types/category";
 import {
-  getCategory,
-  getParentCategories,
+  getCategories,
+  getCategoryById,
   updateCategory,
 } from "@/api/apiMethods";
-import {
-  CategoryDto,
-  CategoryUpdateDto,
-  ParentCategoryDto,
-} from "@/api/types/category";
-import { DataResult } from "@/api/types/apiResponse";
+import { useParamId } from "@/hooks/useParamId";
 
-export default function EditCategoryPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = use(params);
-  const categoryId = slug;
+export default function EditCategoryPage() {
   const router = useRouter();
+  const categoryId = useParamId("id");
 
-  const [parentCategories, setParentCategories] = useState<ParentCategoryDto[]>(
-    []
-  );
   const [loading, setLoading] = useState(true);
-
-  const [form, setForm] = useState<CategoryUpdateDto>({
-    id: categoryId,
+  const [categories, setCategories] = useState<CategoryDto[]>([]);
+  const [form, setForm] = useState<UpdateCategoryPayload>({
+    id: categoryId!,
     name: "",
     tagName: "",
-    parentCategoryId: "",
+    parentCategoryId: 0,
   });
 
   const [errors, setErrors] = useState<
-    Partial<Record<keyof CategoryUpdateDto, string>>
+    Partial<Record<keyof UpdateCategoryPayload, string>>
   >({});
 
-  const handleChange = (key: keyof CategoryUpdateDto, value: string) => {
+  const handleChange = (key: keyof UpdateCategoryPayload, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     setErrors((prev) => ({ ...prev, [key]: "" }));
   };
 
   // CategoryDto → CategoryUpdateDto dönüşümü
-  const mapToUpdateDto = (c: CategoryDto): CategoryUpdateDto => ({
+  const mapToUpdateDto = (c: CategoryDto): UpdateCategoryPayload => ({
     id: c.id,
     name: c.name || "",
     tagName: c.tagName || "",
-    parentCategoryId: c.parentCategoryId || "",
+    parentCategoryId: c.parentCategoryId,
   });
 
   // İlk yüklemede kategori ve parent kategorileri getir
   useEffect(() => {
     const loadData = async () => {
-      const [catRes, parentRes] = await Promise.all([
-        await getCategory(categoryId),
-        await getParentCategories(),
+      const [catRes, cateGoreisRes] = await Promise.all([
+        await getCategoryById(categoryId!),
+        await getCategories(),
       ]);
 
-      if (catRes.success) {
-        const category = (catRes as DataResult<CategoryDto>).data;
-        setForm(mapToUpdateDto(category));
+      if (catRes.succeeded) {
+        setForm(mapToUpdateDto(catRes.data));
       }
-
-      if (parentRes.success) {
-        setParentCategories(
-          (parentRes as DataResult<ParentCategoryDto[]>).data || []
-        );
+      if (cateGoreisRes.succeeded) {
+        setCategories(cateGoreisRes.data);
       }
-
       setLoading(false);
     };
 
@@ -85,17 +67,18 @@ export default function EditCategoryPage({
     setErrors({});
 
     const result = await updateCategory(form);
-
-    if (result.success) {
+debugger
+    if (result.succeeded) {
       toast.success("Kategori başarıyla güncellendi!");
       router.push("/admin/categories");
       return;
     }
 
     if (result.validationErrors) {
-      const newErrors: Partial<Record<keyof CategoryUpdateDto, string>> = {};
+      const newErrors: Partial<Record<keyof UpdateCategoryPayload, string>> =
+        {};
       Object.entries(result.validationErrors).forEach(([key, messages]) => {
-        newErrors[key as keyof CategoryUpdateDto] = messages.join(", ");
+        newErrors[key as keyof UpdateCategoryPayload] = messages.join(", ");
       });
       setErrors(newErrors);
     }
@@ -129,15 +112,15 @@ export default function EditCategoryPage({
         <div className="flex flex-col">
           <label className="mb-1 font-medium text-gray-700">Üst Kategori</label>
           <select
-            value={form.parentCategoryId}
+            value={form.parentCategoryId!}
             onChange={(e) => handleChange("parentCategoryId", e.target.value)}
             className={`px-4 py-2 border rounded focus:ring-2 focus:ring-blue-400 ${
               errors.parentCategoryId ? "border-red-500" : "border-gray-300"
             }`}
           >
             <option value="">Seçiniz</option>
-            {parentCategories
-              .filter((c) => c.id !== categoryId) // kendisini parent olarak seçmesin
+            {categories
+              .filter((c) => c.id !== categoryId)
               .map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}

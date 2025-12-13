@@ -3,13 +3,10 @@
 import { useEffect, useState } from "react";
 import Input from "@/components/Input";
 import { useRouter } from "next/navigation";
-import { createArticle, getCategories } from "@/api/apiMethods";
 import toast from "react-hot-toast";
-import { ArticleAddDto } from "@/api/types/article";
 import { CategoryDto } from "@/api/types/category";
-import { DataResult } from "@/api/types/apiResponse";
-import { fileToBase64 } from "@/lib/fileExtension";
-import FileUpload from "@/components/FileUpload";
+import { CreatePostPayload, PostDto } from "@/api/types/post";
+import { createPost, getCategories } from "@/api/apiMethods";
 
 export default function NewArticlePage() {
   const router = useRouter();
@@ -17,22 +14,18 @@ export default function NewArticlePage() {
   const [categories, setCategories] = useState<CategoryDto[]>([]);
 
   // Form state
-  const [form, setForm] = useState<ArticleAddDto>({
+  const [form, setForm] = useState<CreatePostPayload>({
     title: "",
     content: "",
-    thumbnailBase64: "",
-    publishedDate: new Date(),
-    categoryId: "",
-    slug: "",
-    keywords: "",
+    categoryId: 0,
   });
 
   // Validation errors
   const [errors, setErrors] = useState<
-    Partial<Record<keyof ArticleAddDto, string>>
+    Partial<Record<keyof CreatePostPayload, string>>
   >({});
 
-  const handleChange = (key: keyof ArticleAddDto, value: string | null) => {
+  const handleChange = (key: keyof CreatePostPayload, value: string | null) => {
     setForm((prev) => ({ ...prev, [key]: value as any }));
     setErrors((prev) => ({ ...prev, [key]: "" }));
   };
@@ -40,10 +33,9 @@ export default function NewArticlePage() {
   // kategorileri çek
   useEffect(() => {
     const fetchCategories = async () => {
-      const res = await getCategories();
-      if (res.success) {
-        const categories = (res as DataResult<CategoryDto[]>).data;
-        setCategories(categories || []);
+      const categories = await getCategories();
+      if (categories.succeeded) {
+        setCategories(categories.data || []);
       }
     };
     fetchCategories();
@@ -53,25 +45,24 @@ export default function NewArticlePage() {
     e.preventDefault();
     setErrors({});
 
-    const payload: ArticleAddDto = {
+    const payload: CreatePostPayload = {
       ...form,
-      publishedDate: new Date(form.publishedDate),
     };
 
-    const result = await createArticle(payload);
+    const result = await createPost(payload);
 
-    if (result.success) {
+    if (result.succeeded) {
       toast.success("Makale başarıyla eklendi!");
       router.push("/admin/articles");
       return;
     }
-    debugger;
+
     // API validation errors
     if (result.validationErrors) {
-      const newErrors: Partial<Record<keyof ArticleAddDto, string>> = {};
+      const newErrors: Partial<Record<keyof PostDto, string>> = {};
 
       Object.entries(result.validationErrors).forEach(([key, messages]) => {
-        newErrors[key as keyof ArticleAddDto] = messages.join(", ");
+        newErrors[key as keyof PostDto] = messages.join(", ");
       });
 
       setErrors(newErrors);
@@ -91,38 +82,6 @@ export default function NewArticlePage() {
           onChange={(v) => handleChange("title", v)}
           required
           errorMessage={errors.title}
-        />
-
-        <Input
-          label="Slug"
-          value={form.slug}
-          onChange={(v) => handleChange("slug", v)}
-          required
-          errorMessage={errors.slug}
-        />
-
-        <Input
-          label="Keywords"
-          value={form.keywords}
-          onChange={(v) => handleChange("keywords", v)}
-          errorMessage={errors.keywords}
-        />
-
-        <FileUpload
-          label="Thumbnail"
-          value={form.thumbnailBase64}
-          onChange={(v) => handleChange("thumbnailBase64", v)}
-          errorMessage={errors.thumbnailBase64}
-        />
-
-        {/* Yayın Tarihi */}
-        <Input
-          label="Yayın Tarihi"
-          type="date"
-          value={form.publishedDate.toString().substring(0, 10)}
-          onChange={(v) => handleChange("publishedDate", v)}
-          required
-          errorMessage={errors.publishedDate}
         />
 
         {/* Kategori seçimi */}
