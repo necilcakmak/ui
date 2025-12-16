@@ -19,7 +19,9 @@ export function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL("/404", request.url));
     }
   } catch (err) {
-    console.error("DEBUG: Decode Hatası:", err.message);
+   if (err instanceof Error) {
+      console.error("DEBUG: Decode Hatası:", err.message);
+    }
     return NextResponse.redirect(new URL("/site/login", request.url));
   }
 
