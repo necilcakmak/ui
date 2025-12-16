@@ -9,6 +9,7 @@ export function proxy(request: NextRequest) {
   }
 
   try {
+    console.log(">>>> [MIDDLEWARE] Tetiklendi - Path:", request.nextUrl.pathname);
     const payload = token.split(".")[1];
     const decoded = JSON.parse(Buffer.from(payload, "base64").toString());
     console.log("DEBUG: Decoded Payload:", decoded); // Rol ismini buradan göreceğiz
@@ -19,9 +20,7 @@ export function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL("/404", request.url));
     }
   } catch (err) {
-   if (err instanceof Error) {
-      console.error("DEBUG: Decode Hatası:", err.message);
-    }
+  console.log(">>>> [MIDDLEWARE] HATA OLUŞTU:", err?.message || err);
     return NextResponse.redirect(new URL("/site/login", request.url));
   }
 
