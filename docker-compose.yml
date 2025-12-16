@@ -1,0 +1,14 @@
+services:
+  ui_service:
+    build:
+      context: .
+      dockerfile: Dockerfile # Projenin içindeki Dockerfile'ın adı
+    image: necilcakmak/blog:ui
+    container_name: ui_container
+    restart: always
+    networks:
+      - blog_network
+
+networks:
+  blog_network:
+    external: true
