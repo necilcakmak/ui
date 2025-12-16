@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - NEXT_PUBLIC_API_URL=https://api.necilcakmak.com
+        - NEXT_PUBLIC_API_URL=https://api.necilcakmak.com/api
     image: necilcakmak/blog:ui
     container_name: ui_container
     restart: always
