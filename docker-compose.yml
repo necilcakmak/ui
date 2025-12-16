@@ -2,7 +2,9 @@ services:
   ui_service:
     build:
       context: .
-      dockerfile: Dockerfile # Projenin içindeki Dockerfile'ın adı
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=https://api.necilcakmak.com
     image: necilcakmak/blog:ui
     container_name: ui_container
     restart: always
