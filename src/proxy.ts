@@ -20,7 +20,7 @@ export function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL("/404", request.url));
     }
   } catch (err) {
-  console.log(">>>> [MIDDLEWARE] HATA OLUŞTU:", err?.message || err);
+   console.log(">>>> [MIDDLEWARE] HATA OLUŞTU:",err);
     return NextResponse.redirect(new URL("/site/login", request.url));
   }
 
