@@ -66,7 +66,7 @@ debugger
         onSubmit={handleSubmit}
         className="w-full max-w-md p-8 bg-white rounded shadow space-y-6"
       >
-        <h1 className="text-2xl font-bold text-center text-black">Login</h1>
+        <h1 className="text-2xl font-bold text-center text-black">Giriş</h1>
         <Input
           label="Email"
           value={identifier}
