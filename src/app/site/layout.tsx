@@ -1,6 +1,18 @@
 import Navbar from "@/components/Navbar";
 import AuthStatus from "@/AuthStatus";
 
+export const metadata = {
+  title: 'Necil Çakmak',
+  description: 'Yazılım ve Teknoloji Blogu',
+  icons: {
+    icon: [
+      {
+        url: '/icon.svg',
+        type: 'image/svg+xml',
+      },
+    ],
+  },
+};
 export default function SiteLayout({
   children,
 }: {

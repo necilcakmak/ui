@@ -26,6 +26,12 @@ export const getPosts = (): Promise<ApiResponse<PostDto[]>> =>
   getData<PostDto[]>(POSTS_ENDPOINT);
 export const getPostById = (id: number): Promise<ApiResponse<PostDto>> =>
   getData<PostDto>(`${POSTS_ENDPOINT}/${id}`);
+export const createPost = (payload: CreatePostPayload) =>
+  postData<number>(POSTS_ENDPOINT, payload);
+export const deletePost = (id: number) =>
+  deleteData<null>(`${POSTS_ENDPOINT}/${id}`);
+export const updatePost = (payload: UpdatePostPayload) =>
+  putData<null>(POSTS_ENDPOINT, payload);
 
 // CATEGORIES
 export const getCategories = (): Promise<ApiResponse<CategoryDto[]>> =>
@@ -34,9 +40,9 @@ export const getCategoryById = (
   id: number
 ): Promise<ApiResponse<CategoryDto>> =>
   getData<CategoryDto>(`${CATEGORIES_ENDPOINT}/${id}`);
-
-// Diğer CRUD operasyonları...
-export const createPost = (payload: CreatePostPayload) =>
-  postData<number>(POSTS_ENDPOINT, payload);
-export const deletePost = (id: number) =>
-  deleteData<null>(`${POSTS_ENDPOINT}/${id}`);
+export const createCategory = (payload: CreateCategoryPayload) =>
+  postData<number>(CATEGORIES_ENDPOINT, payload);
+export const updateCategory = (payload: UpdateCategoryPayload) =>
+  putData<null>(CATEGORIES_ENDPOINT, payload);
+export const deleteCategory = (id: number) =>
+  deleteData<null>(`${CATEGORIES_ENDPOINT}/${id}`);

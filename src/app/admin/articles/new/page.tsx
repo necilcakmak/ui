@@ -50,7 +50,7 @@ export default function NewArticlePage() {
     };
 
     const result = await createPost(payload);
-
+debugger
     if (result.succeeded) {
       toast.success("Makale başarıyla eklendi!");
       router.push("/admin/articles");
