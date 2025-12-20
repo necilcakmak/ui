@@ -15,7 +15,7 @@ export default function RegisterPage() {
 
   const [form, setForm] = useState<RegisterDto>({
     email: "",
-    userName: "",
+    username: "",
     password: "",
   });
 
@@ -73,10 +73,10 @@ export default function RegisterPage() {
 
         <Input
           label="Username"
-          value={form.userName}
-          onChange={(v) => handleChange("userName", v)}
+          value={form.username}
+          onChange={(v) => handleChange("username", v)}
           required
-          errorMessage={errors.userName}
+          errorMessage={errors.username}
         />
 
         <Input

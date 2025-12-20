@@ -12,12 +12,12 @@ export default async function AuthStatus() {
     <div className="flex items-center space-x-4 text-sm font-medium">
       {!isLogged ? (
         <>
-          <Link href="/site/login" className="hover:text-blue-600">
+          {/* <Link href="/site/login" className="hover:text-blue-600">
             Giriş Yap
           </Link>
           <Link href="/site/register" className="hover:text-blue-600">
             Kayıt Ol
-          </Link>
+          </Link> */}
         </>
       ) : (
         <LogoutButton />
