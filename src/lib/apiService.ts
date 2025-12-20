@@ -32,9 +32,9 @@ export async function fetchWrapper<T = any>(
       succeeded: res.ok,
       data: apiResponse.data,
       message: apiResponse.message || (res.ok ? "" : "İstek başarısız oldu"),
+      validationErrors: apiResponse.validationErrors,
     };
   } catch (err) {
-    console.error("Sunucu Hatası:", err);
     return {
       succeeded: false,
       data: null as any,
