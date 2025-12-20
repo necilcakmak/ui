@@ -1,44 +1,18 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import { getCategories } from "@/api/apiMethods";
 import { CategoryDto } from "@/api/types/category";
 import Link from "next/link";
-import { toast } from "react-hot-toast";
+import { Metadata } from "next";
 
-export default function CategoriesPage() {
-  const [categories, setCategories] = useState<CategoryDto[]>([]);
-  const [loading, setLoading] = useState(true);
+// 1. SEO için Metadata (Dinamikleştirilebilir)
+export const metadata: Metadata = {
+  title: "Kategoriler | Necil Çakmak",
+  description: "Yazılım, teknoloji ve kişisel gelişim üzerine tüm içerik kategorileri.",
+};
 
-  const fetchCategories = async () => {
-    try {
-      setLoading(true);
-      const result = await getCategories();
-      
-      if (result.succeeded) {
-        setCategories(result.data);
-      } else {
-        toast.error(result.message || "Kategoriler yüklenemedi");
-      }
-    } catch (error) {
-      console.error("Kategori çekme hatası:", error);
-      toast.error("Bir ağ hatası oluştu");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
+export default async function CategoriesPage() {
+  // 2. Veriyi doğrudan sunucuda çekiyoruz
+  const result = await getCategories();
+  const categories: CategoryDto[] = result.succeeded ? result.data : [];
 
   return (
     <div className="py-10 animate-in fade-in duration-500">
@@ -98,11 +72,6 @@ export default function CategoriesPage() {
         </div>
       ) : (
         <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-200 shadow-inner">
-          <div className="text-gray-300 mb-4 flex justify-center">
-             <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-             </svg>
-          </div>
           <p className="text-gray-400 font-medium text-lg">Henüz bir kategori eklenmemiş.</p>
         </div>
       )}

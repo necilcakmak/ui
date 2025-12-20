@@ -1,76 +1,53 @@
-import {  ApiResponse } from "@/api/types/apiResponse";
-import { CreatePostPayload, PostDto, UpdatePostPayload } from "@/api/types/post";
+import { ApiResponse } from "@/api/types/apiResponse";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export async function fetchWrapper<T = any>(
   endpoint: string,
   options: RequestInit = {}
-): Promise<ApiResponse<T>> { 
+): Promise<ApiResponse<T>> {
   try {
-    
+    const isServer = typeof window === "undefined";
+
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
       ...(options.headers as Record<string, string>),
     };
-
+    console.log("İstek gidiyor:", `${API_URL}/${endpoint}`);
     const res = await fetch(`${API_URL}/${endpoint}`, {
       ...options,
       headers,
-      credentials: "include", 
+      cache: "no-store", // SEO ve güncel veri için SSR'da cache'i kapatmak iyidir
     });
 
-    // 1. JSON'a Çevirme ve Hata Yakalama
-    const apiResponse: ApiResponse<T> = await res.json().catch(() => ({ 
-        succeeded: false, 
-        message: "Sunucudan geçerli bir JSON formatı alınamadı." 
-    }));
-    
-    // 2. HTTP Durum Kodu Kontrolü (Hata Yönlendirmesi)
-    if (res.status === 401 && !apiResponse.succeeded) {
-      localStorage.setItem("redirectAfterLogin", window.location.pathname);
+    const text = await res.text();
+    const apiResponse: ApiResponse<T> = text ? JSON.parse(text) : {};
+
+    // Sadece tarayıcıda çalışacak kod
+    if (res.status === 401 && !isServer) {
       window.location.href = "/site/login";
-      
-      return { succeeded: false, data: null as any, message: "Redirecting to login..." };
-    }
-    
-    // 3. Genel Ağ Hatası Kontrolü
-    if (!res.ok) {
-        if (apiResponse && apiResponse.succeeded === false) {
-             return apiResponse;
-        }
-        
-        // Eğer body boş veya tanımsız geldiyse (Nadir 500 hataları vb.)
-        return { 
-            succeeded: false, 
-            data: null as any, 
-            message: `API yanıtı başarısız oldu. Durum Kodu: ${res.status}`
-        };
     }
 
-    return apiResponse;
-
+    return {
+      succeeded: res.ok,
+      data: apiResponse.data,
+      message: apiResponse.message || (res.ok ? "" : "İstek başarısız oldu"),
+    };
   } catch (err) {
-    return { succeeded: false, data: null as any, message: "Ağ bağlantı hatası." };
+    console.error("Sunucu Hatası:", err);
+    return {
+      succeeded: false,
+      data: null as any,
+      message: "Bağlantı kurulamadı.",
+    };
   }
 }
 
-export const getData = <T>(endpoint: string) => fetchWrapper<T>(endpoint);
-
-
-
-export const postData = <T>(endpoint: string, payload: any) =>
-  fetchWrapper<T>(endpoint, {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
-
-export const putData = <T>(endpoint: string, payload: any) =>
-  fetchWrapper<T>(endpoint, {
-    method: "PUT",
-    body: JSON.stringify(payload),
-  });
-
-export const deleteData = <T>(endpoint: string) =>
-  fetchWrapper<T>(endpoint, {
-    method: "DELETE",
-  });
+// Dışarıya aktarılan yardımcılar
+export const getData = <T>(e: string) => fetchWrapper<T>(e, { method: "GET" });
+export const postData = <T>(e: string, p: any) =>
+  fetchWrapper<T>(e, { method: "POST", body: JSON.stringify(p) });
+export const putData = <T>(e: string, p: any) =>
+  fetchWrapper<T>(e, { method: "PUT", body: JSON.stringify(p) });
+export const deleteData = <T>(e: string) =>
+  fetchWrapper<T>(e, { method: "DELETE" });

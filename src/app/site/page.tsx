@@ -1,198 +1,38 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { toast } from "react-hot-toast";
-import Link from "next/link";
-import { PostDto } from "@/api/types/post";
+// app/blog/page.tsx (Veya Dashboard dizininiz)
 import { getPosts } from "@/api/apiMethods";
+import BlogListClient from "@/app/site/BlogListClient";
+import { Metadata } from "next";
 
-export default function Dashboard() {
-  const [articleList, setArticleList] = useState<PostDto[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const articlesPerPage = 5; // Sayfa başına 5 makale daha dengeli durur
+// SEO Metadata: Arama sonuçlarında görünecek başlık ve açıklama
+export const metadata: Metadata = {
+  title: "Blog | Necil Çakmak",
+  description:
+    "Yazılım geliştirme, teknoloji ve güncel rehberler üzerine makaleler.",
+  openGraph: {
+    title: "Necil Çakmak Blog",
+    description: "En yeni teknoloji içerikleri.",
+    url: "https://necilcakmak.com",
+  },
+};
 
-  const fetchArticles = async () => {
-    setLoading(true);
-    const result = await getPosts();
-    if (result.succeeded) {
-      setArticleList(result.data || []);
-    } else {
-      toast.error(result.message || "Makaleler yüklenirken bir hata oluştu");
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchArticles();
-  }, []);
-
-  const formatDate = (dateStr: string | Date) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("tr-TR", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    });
-  };
-
-  const filteredArticles = articleList.filter((article) =>
-    article.title?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const indexOfLastArticle = currentPage * articlesPerPage;
-  const indexOfFirstArticle = indexOfLastArticle - articlesPerPage;
-  const currentArticles = filteredArticles.slice(indexOfFirstArticle, indexOfLastArticle);
-  const totalPages = Math.ceil(filteredArticles.length / articlesPerPage);
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  // HTML etiketlerini temizlemek için yardımcı fonksiyon (Özet için)
-  const stripHtml = (html: string) => {
-    return html?.replace(/<[^>]*>?/gm, '');
-  };
+export default async function Dashboard() {
+  // Veri çekme işlemi doğrudan sunucuda yapılır
+  const result = await getPosts();
+  const initialPosts = result.succeeded ? result.data || [] : [];
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 space-y-12">
-      
-      {/* Arama ve Başlık Bölümü */}
-      <div className="space-y-6">
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl font-black text-gray-900 tracking-tight">Blog Yazıları</h1>
-          <p className="text-gray-500">En yeni teknolojiler ve rehber içerikler.</p>
-        </div>
-        
-        <div className="relative group max-w-2xl mx-auto">
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <svg className="h-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
-          <input
-            type="text"
-            placeholder="Makale başlığı ara..."
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="w-full bg-white border border-gray-200 rounded-2xl pl-11 pr-4 py-4 shadow-sm focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400"
-          />
-        </div>
+      <div className="text-center space-y-2">
+        <h1 className="text-4xl font-black text-gray-900 tracking-tight">
+          Blog Yazıları
+        </h1>
+        <p className="text-gray-500">
+          En yeni teknolojiler ve rehber içerikler.
+        </p>
       </div>
 
-      {/* Yükleme Durumu */}
-      {loading && (
-        <div className="flex flex-col items-center py-20 space-y-4">
-          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-blue-600"></div>
-          <p className="text-gray-400 text-sm">Yazılar yükleniyor...</p>
-        </div>
-      )}
-
-      {/* Makale Listesi */}
-      {!loading && (
-        <div className="space-y-10">
-          {currentArticles.length > 0 ? (
-            currentArticles.map((article) => (
-              <article
-                key={article.id}
-                className="group relative bg-white border border-gray-100 rounded-[32px] p-2 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/5 hover:-translate-y-1"
-              >
-                <div className="p-6 md:p-8 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-bold uppercase tracking-widest">
-                      {article.category?.name || "Genel"}
-                    </span>
-                    <time className="text-xs text-gray-400 font-medium">
-                      {formatDate(article.createdDate)}
-                    </time>
-                  </div>
-
-                  <h3 className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight group-hover:text-blue-600 transition-colors">
-                    <Link href={`/site/article/${article.id}`}>
-                      {article.title}
-                    </Link>
-                  </h3>
-
-                  <p className="text-gray-500 leading-relaxed line-clamp-3 text-lg">
-                    {stripHtml(article.content || "").slice(0, 220)}...
-                  </p>
-
-                  <div className="pt-6 border-t border-gray-50 flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-gray-100 to-gray-200 flex items-center justify-center text-[10px] font-bold text-gray-600 border border-gray-100">
-                        {article.author.userName?.substring(0, 2).toUpperCase()}
-                      </div>
-                      <span className="text-sm font-semibold text-gray-700">{article.author.userName}</span>
-                    </div>
-
-                    <Link 
-                      href={`/site/article/${article.id}`}
-                      className="inline-flex items-center text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors"
-                    >
-                      Devamını Oku
-                      <svg className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                      </svg>
-                    </Link>
-                  </div>
-                </div>
-              </article>
-            ))
-          ) : (
-            !loading && (
-              <div className="text-center py-20 bg-gray-50 rounded-[32px] border-2 border-dashed border-gray-200">
-                <p className="text-gray-400 font-medium">Aradığınız kriterlerde makale bulunamadı.</p>
-              </div>
-            )
-          )}
-        </div>
-      )}
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-2 pt-10">
-          <button
-            disabled={currentPage === 1}
-            onClick={() => handlePageChange(currentPage - 1)}
-            className="p-2 rounded-xl border border-gray-200 hover:bg-white hover:shadow-md disabled:opacity-30 transition-all"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          
-          <div className="flex items-center gap-1">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => handlePageChange(page)}
-                className={`w-10 h-10 rounded-xl font-bold text-sm transition-all ${
-                  page === currentPage
-                    ? "bg-blue-600 text-white shadow-lg shadow-blue-200"
-                    : "bg-white text-gray-500 border border-gray-100 hover:border-blue-200"
-                }`}
-              >
-                {page}
-              </button>
-            ))}
-          </div>
-
-          <button
-            disabled={currentPage === totalPages}
-            onClick={() => handlePageChange(currentPage + 1)}
-            className="p-2 rounded-xl border border-gray-200 hover:bg-white hover:shadow-md disabled:opacity-30 transition-all"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
-      )}
+      {/* Etkileşimli arama ve listeleme kısmını Client Component'e devrediyoruz */}
+      <BlogListClient initialPosts={initialPosts} />
     </div>
   );
 }
