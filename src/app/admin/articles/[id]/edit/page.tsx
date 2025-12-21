@@ -9,6 +9,7 @@ import { CategoryDto } from "@/api/types/category";
 import { PostDto, UpdatePostPayload } from "@/api/types/post";
 import { getCategories, getPostById, updatePost } from "@/api/apiMethods";
 import { useParamId } from "@/hooks/useParamId";
+import TiptapEditor from "@/components/TiptapEditor";
 
 export default function EditArticlePage() {
   const router = useRouter();
@@ -129,14 +130,11 @@ export default function EditArticlePage() {
         {/* İçerik */}
         <div className="flex flex-col">
           <label className="mb-1 font-medium text-gray-700">İçerik</label>
-          <textarea
-            value={form.content || ""}
-            onChange={(e) => handleChange("content", e.target.value)}
-            rows={8}
-            className={`px-4 py-2 border rounded text-black focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-              errors.content ? "border-red-500" : "border-gray-300"
-            }`}
-          ></textarea>
+          <TiptapEditor
+            content={form.content}
+            onChange={(html) => handleChange("content", html)}
+            error={errors.content}
+          />
 
           {errors.content && (
             <span className="text-red-500 text-sm mt-1">{errors.content}</span>
