@@ -17,6 +17,7 @@ export async function fetchWrapper<T = any>(
     const res = await fetch(`${API_URL}/${endpoint}`, {
       ...options,
       headers,
+      credentials: "include",
       cache: "no-store", // SEO ve güncel veri için SSR'da cache'i kapatmak iyidir
     });
 

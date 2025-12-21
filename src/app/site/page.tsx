@@ -18,6 +18,7 @@ export const metadata: Metadata = {
 export default async function Dashboard() {
   // Veri çekme işlemi doğrudan sunucuda yapılır
   const result = await getPosts();
+  console.log(result)
   const initialPosts = result.succeeded ? result.data || [] : [];
 
   return (

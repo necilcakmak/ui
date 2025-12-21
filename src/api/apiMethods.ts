@@ -26,6 +26,8 @@ export const getPosts = (): Promise<ApiResponse<PostDto[]>> =>
   getData<PostDto[]>(POSTS_ENDPOINT);
 export const getPostById = (id: number): Promise<ApiResponse<PostDto>> =>
   getData<PostDto>(`${POSTS_ENDPOINT}/${id}`);
+export const getPostByCategoryId = (id: number): Promise<ApiResponse<PostDto[]>> =>
+  getData<PostDto[]>(`${POSTS_ENDPOINT}/${id}/posts`);
 export const createPost = (payload: CreatePostPayload) =>
   postData<number>(POSTS_ENDPOINT, payload);
 export const deletePost = (id: number) =>

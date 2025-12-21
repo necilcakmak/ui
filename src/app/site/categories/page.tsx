@@ -30,7 +30,7 @@ export default async function CategoriesPage() {
           {categories.map((category) => (
             <Link
               key={category.id}
-              href={`/categories/${category.id}`}
+              href={`/site/categories/${category.id}`}
               className="group bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-300 flex flex-col justify-between"
             >
               <div>
