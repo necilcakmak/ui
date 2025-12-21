@@ -13,7 +13,6 @@ export async function fetchWrapper<T = any>(
       "Content-Type": "application/json",
       ...(options.headers as Record<string, string>),
     };
-    console.log("İstek gidiyor:", `${API_URL}/${endpoint}`);
     const res = await fetch(`${API_URL}/${endpoint}`, {
       ...options,
       headers,

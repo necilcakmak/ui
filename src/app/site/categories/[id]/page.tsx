@@ -11,7 +11,7 @@ export default async function CategoryPostsPage({ params }: Props) {
 
   const result = await getPostByCategoryId(id);
   const posts = Array.isArray(result.data) ? result.data : [];
-
+console.log(posts)
   if (result.succeeded && posts.length === 0) {
     return (
       <div className="text-center py-20">

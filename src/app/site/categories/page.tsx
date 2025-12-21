@@ -3,14 +3,12 @@ import { CategoryDto } from "@/api/types/category";
 import Link from "next/link";
 import { Metadata } from "next";
 
-// 1. SEO için Metadata (Dinamikleştirilebilir)
 export const metadata: Metadata = {
   title: "Kategoriler | Necil Çakmak",
   description: "Yazılım, teknoloji ve kişisel gelişim üzerine tüm içerik kategorileri.",
 };
 
 export default async function CategoriesPage() {
-  // 2. Veriyi doğrudan sunucuda çekiyoruz
   const result = await getCategories();
   const categories: CategoryDto[] = result.succeeded ? result.data : [];
 

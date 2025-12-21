@@ -7,7 +7,7 @@ import { PostDto } from "@/api/types/post";
 export default function BlogListClient({ initialPosts }: { initialPosts: PostDto[] }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const articlesPerPage = 5;
+  const articlesPerPage = 3;
 
   // Yardımcı Fonksiyonlar
   const formatDate = (dateStr: string | Date) => {

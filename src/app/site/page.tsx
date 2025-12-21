@@ -3,7 +3,6 @@ import { getPosts } from "@/api/apiMethods";
 import BlogListClient from "@/app/site/BlogListClient";
 import { Metadata } from "next";
 
-// SEO Metadata: Arama sonuçlarında görünecek başlık ve açıklama
 export const metadata: Metadata = {
   title: "Blog | Necil Çakmak",
   description:
@@ -16,9 +15,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Dashboard() {
-  // Veri çekme işlemi doğrudan sunucuda yapılır
   const result = await getPosts();
-  console.log(result)
   const initialPosts = result.succeeded ? result.data || [] : [];
 
   return (
@@ -32,7 +29,6 @@ export default async function Dashboard() {
         </p>
       </div>
 
-      {/* Etkileşimli arama ve listeleme kısmını Client Component'e devrediyoruz */}
       <BlogListClient initialPosts={initialPosts} />
     </div>
   );
