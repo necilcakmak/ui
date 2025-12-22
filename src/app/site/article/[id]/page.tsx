@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { getPostById } from "@/api/apiMethods";
 
 const formatDate = (dateStr: string | Date) => {
@@ -26,94 +25,80 @@ export default async function ArticleDetailPage({ params }: Props) {
   const article = result.data;
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-20">
-      <header className="bg-white border-b border-gray-200 mb-10">
-        <div className="max-w-4xl mx-auto px-6 py-12 text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight mb-6">
-            {article.title}
-          </h1>
-          <div className="flex items-center justify-center space-x-4 text-gray-500 text-sm">
-            <span className="flex items-center">
-              <svg
-                className="w-4 h-4 mr-1"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
-              {formatDate(article.createdDate)}
-            </span>
-            <span>•</span>
-            <span className="font-medium text-gray-700">
-              {article.author.userName} tarafından
+    <div className="animate-fadeIn">
+      {/* Header: Layout içine girdiği için pt-16'yı azalttık */}
+      <header className="mb-10">
+        <div className="flex items-center space-x-2 mb-4">
+          <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-widest rounded-md">
+            {article.category?.name}
+          </span>
+          <span className="text-gray-300 text-xs">•</span>
+          <span className="text-gray-400 text-xs">
+            {formatDate(article.createdDate)}
+          </span>
+        </div>
+
+        <h1 className="text-3xl md:text-4xl font-black text-gray-900 leading-[1.2] mb-6">
+          {article.title}
+        </h1>
+
+        {/* Yazar Bilgisi - Daha kompakt */}
+        <div className="flex items-center justify-between pb-6 border-b border-gray-100">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 rounded-full bg-gray-900 flex items-center justify-center text-[10px] font-bold text-white uppercase tracking-tighter">
+              {article.author.userName!.substring(0, 2)}
+            </div>
+            <span className="text-sm font-bold text-gray-700">
+              {article.author.userName}
             </span>
           </div>
+
+          <button className="flex items-center space-x-2 text-gray-400 hover:text-gray-900 transition-colors">
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 100-2.684 3 3 0 000 2.684zm0 9.316a3 3 0 100-2.684 3 3 0 000 2.684z"
+              />
+            </svg>
+            <span className="text-[11px] font-bold uppercase tracking-wider">
+              Paylaş
+            </span>
+          </button>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-10">
-        <aside className="lg:col-span-3 hidden lg:block">
-          <div className="sticky top-28 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">
-              Kategoriler
-            </h3>
-            <nav className="flex flex-col space-y-3">
-              <Link
-                href="#"
-                className="text-gray-700 hover:text-blue-600 font-medium transition flex items-center"
-              >
-                <span className="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
-                {article.category?.name}
-              </Link>
-            </nav>
-          </div>
-        </aside>
+      {/* Makale İçeriği */}
+      <article
+        className="prose prose-sm md:prose-base prose-slate max-w-none 
+        prose-headings:text-gray-900 prose-headings:font-bold
+        prose-p:text-gray-600 prose-p:leading-[1.7] 
+        prose-img:rounded-[2rem] prose-img:shadow-lg
+        prose-code:text-blue-600 prose-code:bg-blue-50 prose-code:px-1 prose-code:rounded
+        prose-strong:text-gray-900"
+      >
+        <div dangerouslySetInnerHTML={{ __html: article.content || "" }} />
+      </article>
 
-        <main className="lg:col-span-6 bg-white p-8 md:p-12 rounded-2xl shadow-sm border border-gray-100">
-          <article className="prose prose-lg prose-blue max-w-none prose-headings:font-bold prose-p:text-gray-600 prose-img:rounded-xl">
-            <div dangerouslySetInnerHTML={{ __html: article.content || "" }} />
-          </article>
-
-          <div className="mt-12 pt-8 border-t border-gray-100 flex flex-wrap gap-2">
-            <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-semibold">
-              #makale
+      {/* Footer Tags */}
+      <footer className="mt-12 pt-8 border-t border-gray-100">
+        <div className="flex flex-wrap gap-3">
+          {["makale", "blog", "teknoloji"].map((tag) => (
+            <span
+              key={tag}
+              className="text-[11px] font-bold text-gray-400 hover:text-blue-600 transition-colors uppercase tracking-widest cursor-pointer"
+            >
+              #{tag}
             </span>
-            <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-semibold">
-              #blog
-            </span>
-            <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-semibold">
-              #teknoloji
-            </span>
-          </div>
-        </main>
-        <aside className="lg:col-span-3 hidden lg:block">
-          <div className="sticky top-28 bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-center">
-            <div className="relative inline-block mb-4">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center p-1">
-                <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
-                  <span className="text-gray-400 text-3xl font-bold uppercase">
-                    {article.author.userName!.substring(0, 2)}
-                  </span>
-                </div>
-              </div>
-              <div className="absolute bottom-1 right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full"></div>
-            </div>
-            <h4 className="font-bold text-gray-900 text-lg">
-              {article.author.userName}
-            </h4>
-            <p className="text-gray-500 text-sm mb-6">İçerik Yazarı</p>
-            <button className="w-full py-2 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-800 transition">
-              Tüm Yazıları
-            </button>
-          </div>
-        </aside>
-      </div>
+          ))}
+        </div>
+      </footer>
     </div>
   );
 }

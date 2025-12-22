@@ -1,4 +1,3 @@
-// app/blog/page.tsx (Veya Dashboard dizininiz)
 import { getPosts } from "@/api/apiMethods";
 import BlogListClient from "@/app/site/BlogListClient";
 import { Metadata } from "next";
@@ -19,17 +18,21 @@ export default async function Dashboard() {
   const initialPosts = result.succeeded ? result.data || [] : [];
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12 space-y-12">
-      <div className="text-center space-y-2">
-        <h1 className="text-4xl font-black text-gray-900 tracking-tight">
+    <div className="animate-fadeIn space-y-10">
+      {/* Üst Başlık Alanı - Daha Dashboard vari bir görünüm */}
+      <div className="flex flex-col space-y-2 border-b border-gray-100 pb-8">
+        <h1 className="text-3xl font-black text-gray-900 tracking-tight">
           Blog Yazıları
         </h1>
-        <p className="text-gray-500">
-          En yeni teknolojiler ve rehber içerikler.
+        <p className="text-sm text-gray-500 font-medium">
+          En yeni teknolojiler, .NET rehberleri ve sistem mimarileri.
         </p>
       </div>
 
-      <BlogListClient initialPosts={initialPosts} />
+      {/* Blog Listesi */}
+      <div className="min-h-[400px]">
+        <BlogListClient initialPosts={initialPosts} />
+      </div>
     </div>
   );
 }
