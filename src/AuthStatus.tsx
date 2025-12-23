@@ -41,7 +41,7 @@ export default async function AuthStatus() {
         </div>
       ) : (
         <div className="flex items-center space-x-4">
-          <div className="hidden sm:flex items-center space-x-2 mr-2">
+          <div className="flex items-center space-x-2 mr-2">
             {userRole === "Admin" && (
               <Link
                 href="/admin"
