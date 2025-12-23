@@ -3,6 +3,7 @@
 import { ReactNode, useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
+import { LogoutButton } from "@/components/LogoutButton";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -10,14 +11,13 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobil menü durumu
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
 
   const role = "Admin";
 
-  // Sayfa değiştiğinde mobil menüyü kapat
   useEffect(() => {
     setIsSidebarOpen(false);
   }, [pathname]);
@@ -35,15 +35,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
-    document.cookie =
-      "authToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax;";
-    router.push("/auth/login");
-  };
-
   return (
     <div className="flex min-h-screen bg-gray-100">
-      {/* Mobil Overlay - Menü açıkken arka planı karartır */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
@@ -51,7 +44,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         />
       )}
 
-      {/* Sidebar */}
       <aside
         className={`
         fixed top-0 left-0 h-full w-64 bg-gray-800 text-white z-50 transition-transform duration-300 transform
@@ -66,7 +58,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           >
             Admin
           </Link>
-          {/* Mobil Kapatma Butonu */}
           <button
             onClick={() => setIsSidebarOpen(false)}
             className="lg:hidden text-gray-400"
@@ -108,12 +99,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </nav>
       </aside>
 
-      {/* Sağ İçerik Alanı */}
       <div className="flex-1 flex flex-col lg:ml-64 transition-all duration-300">
-        {/* Üst Menü */}
         <header className="h-16 bg-gray-800 flex items-center justify-between px-4 lg:px-6 shadow-md sticky top-0 z-30">
           <div className="flex items-center">
-            {/* Hamburger Menu Butonu (Sadece Mobil) */}
             <button
               onClick={() => setIsSidebarOpen(true)}
               className="p-2 mr-4 text-gray-400 lg:hidden hover:text-white"
@@ -141,18 +129,19 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </Link>
           </div>
 
-          {/* Profil Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <button
-              className="flex items-center space-x-2 px-3 py-2 bg-gray-700 text-white text-sm rounded hover:bg-gray-600 transition"
+              className="flex items-center space-x-3 px-3 py-1.5 bg-gray-700/50 text-white text-sm rounded-xl hover:bg-gray-600 transition-all border border-gray-600"
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-              <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-[10px]">
-                A
+              <div className="w-8 h-8 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-lg flex items-center justify-center font-bold shadow-sm">
+                {role[0]}
               </div>
-              <span className="hidden sm:inline">{role}</span>
+              <span className="hidden sm:inline font-medium tracking-wide">
+                {role}
+              </span>
               <svg
-                className={`w-4 h-4 transition-transform ${
+                className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
                   dropdownOpen ? "rotate-180" : ""
                 }`}
                 fill="none"
@@ -169,32 +158,61 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </button>
 
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg z-50 overflow-hidden">
+              <div className="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] border border-gray-100 z-50 overflow-hidden py-2 animate-in fade-in slide-in-from-top-2 duration-200">
                 <Link
                   href="/admin/profile"
-                  className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition"
+                  className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors mx-2 rounded-lg"
                 >
-                  Profilim
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
+                  </svg>
+                  <span>Profilim</span>
                 </Link>
+
                 <Link
                   href="/admin/settings"
-                  className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition"
+                  className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors mx-2 rounded-lg"
                 >
-                  Ayarlar
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
+                  <span>Ayarlar</span>
                 </Link>
-                <hr />
-                <button
-                  onClick={handleLogout}
-                  className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600 transition"
-                >
-                  Çıkış
-                </button>
+
+                <div className="my-2 border-t border-gray-100 mx-4" />
+
+                <LogoutButton />
               </div>
             )}
           </div>
         </header>
 
-        {/* Ana İçerik */}
         <main className="p-4 lg:p-8">
           <div className="max-w-6xl mx-auto bg-white p-4 lg:p-6 rounded-lg shadow-sm min-h-[calc(100vh-120px)]">
             {children}

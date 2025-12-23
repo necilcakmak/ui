@@ -6,13 +6,14 @@ import {
   UpdateCategoryPayload,
 } from "./types/category";
 import { LoginDto, RegisterDto } from "./types/auth";
-import { AuthResponseDto } from "./types/user";
+import { AuthResponseDto, UserDto } from "./types/user";
 
 // ÖNEMLİ: Gerçek istek atan fonksiyonları buradan alıyoruz
 import { getData, postData, putData, deleteData } from "@/lib/apiService";
 
 const POSTS_ENDPOINT = "Posts";
 const CATEGORIES_ENDPOINT = "Categories";
+const USERS_ENDPOINT = "Users";
 
 // AUTH
 export const login = (payload: LoginDto) =>
@@ -48,3 +49,11 @@ export const updateCategory = (payload: UpdateCategoryPayload) =>
   putData<null>(CATEGORIES_ENDPOINT, payload);
 export const deleteCategory = (id: number) =>
   deleteData<null>(`${CATEGORIES_ENDPOINT}/${id}`);
+
+// USERS
+export const getUsers = (): Promise<ApiResponse<UserDto[]>> =>
+  getData<UserDto[]>(USERS_ENDPOINT);
+export const getUserById = (id: number): Promise<ApiResponse<UserDto>> =>
+  getData<UserDto>(`${USERS_ENDPOINT}/${id}`);
+export const deleteUser = (id: number) =>
+  deleteData<null>(`${USERS_ENDPOINT}/${id}`);
