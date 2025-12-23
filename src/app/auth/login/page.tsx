@@ -28,13 +28,8 @@ export default function LoginPage() {
     const loginResponse: ApiResponse<AuthResponseDto> = await login(payload);
 
     if (loginResponse.succeeded) {
-      const tokenData = loginResponse.data;
-      if (tokenData?.token && tokenData.role === "Admin") {
-        toast.success(loginResponse.message || "Giriş başarılı.");
-        router.push("/admin");
-      } else {
-        toast.error("Yetkisiz erişim veya eksik veri.");
-      }
+      toast.success(loginResponse.message || "Giriş başarılı.");
+      router.push("/");
     } else {
       if (loginResponse.validationErrors) {
         const fieldErrors: { [key: string]: string } = {};
